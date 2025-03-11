@@ -1,9 +1,8 @@
 "use client";
 
-import { useProducts } from "@/lib/hooks/use-products";
 import { useCart } from "@/lib/hooks/useCart";
-import Link from "next/link";
 import { Product } from "@/lib/types";
+import Image from 'next/image';
 
 interface ProductListProps {
   products: Product[];
@@ -16,11 +15,13 @@ export function ProductList({ products }: ProductListProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
       {products.map((product) => (
         <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="h-48 overflow-hidden">
-            <img
+          <div className="relative h-48 overflow-hidden">
+            <Image
               src={product.image_url}
               alt={product.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
           <div className="p-4">

@@ -1,6 +1,7 @@
 import { useCart } from '@/lib/hooks/useCart';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import Image from 'next/image';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -51,11 +52,15 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
                       {cart.items.map((item) => (
                         <div key={item.product.id} className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
-                            <img
-                              src={item.product.image_url}
-                              alt={item.product.name}
-                              className="w-16 h-16 object-cover rounded"
-                            />
+                            <div className="relative w-16 h-16">
+                              <Image
+                                src={item.product.image_url}
+                                alt={item.product.name}
+                                fill
+                                className="object-cover rounded"
+                                sizes="(max-width: 64px) 100vw, 64px"
+                              />
+                            </div>
                             <div>
                               <h4 className="text-sm font-medium text-gray-900">
                                 {item.product.name}

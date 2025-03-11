@@ -51,7 +51,8 @@ export function useCartActions() {
             stock: p.stock
           }))
         };
-      } catch (error) {
+      } catch (err) {
+        console.error("Erreur lors de la récupération des produits:", err);
         return {
           success: false,
           message: "Erreur lors de la récupération des produits"
