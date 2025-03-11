@@ -2,7 +2,10 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { ProductAgent } from './components/ProductAgent'
 import { CopilotKit } from "@copilotkit/react-core"
+import "@copilotkit/react-ui/styles.css"
 import ClientWrapper from './client-wrapper'
+import { ReactNode } from "react"
+import { Providers } from "./providers"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -14,17 +17,17 @@ export const metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body className={inter.className}>
-        <ClientWrapper>
-          <CopilotKit runtimeUrl="/api/agent">
+        <Providers>
+          <CopilotKit runtimeUrl="/api/copilotkit">
             {children}
             <ProductAgent />
           </CopilotKit>
-        </ClientWrapper>
+        </Providers>
       </body>
     </html>
   )

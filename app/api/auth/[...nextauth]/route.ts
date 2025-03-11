@@ -16,86 +16,74 @@ const handler = NextAuth({
   },
   callbacks: {
     async signIn({ user, account }) {
-      console.log('Début du processus de signIn', { user, account });
-      
-      if (account?.provider === 'google') {
-        try {
-          console.log('Vérification de l\'utilisateur dans Supabase');
-          const { data: existingUser, error: searchError } = await supabaseAdmin
-            .from('user_product')
-            .select()
-            .eq('email', user.email)
-            .single();
-
-          if (searchError && searchError.code !== 'PGRST116') {
-            console.error('Erreur lors de la recherche:', searchError);
-            return false;
-          }
-
-          console.log('Utilisateur existant:', existingUser);
-
-          if (!existingUser) {
-            console.log('Création d\'un nouvel utilisateur');
-            const newUser = {
-              email: user.email,
-              name: user.name,
-              avatar_url: user.image,
-              provider: 'google',
-              provider_id: user.id,
-              role: 'user',
-              last_login: new Date().toISOString(),
-            };
-            
-            const { error: insertError } = await supabaseAdmin
-              .from('user_product')
-              .insert([newUser]);
-
-            if (insertError) {
-              console.error('Erreur lors de la création:', insertError);
-              return false;
-            }
-            console.log('Nouvel utilisateur créé avec succès');
-          } else {
-            console.log('Mise à jour de la dernière connexion');
-            const { error: updateError } = await supabaseAdmin
-              .from('user_product')
-              .update({ last_login: new Date().toISOString() })
-              .eq('email', user.email);
-
-            if (updateError) {
-              console.error('Erreur lors de la mise à jour:', updateError);
-            }
-          }
-          return true;
-        } catch (error) {
-          console.error('Erreur générale:', error);
-          return false;
-        }
-      }
-      return true;
-    },
-    async session({ session, user }) {
-      console.log('Configuration de la session', { session, user });
-      
-      if (session.user?.email) {
-        const { data: userData, error } = await supabaseAdmin
-          .from('user_product')
+      try {
+        const { data: existingUser, error: searchError } = await supabase
+          .from('users')
           .select('*')
-          .eq('email', session.user.email)
+          .eq('email', user.email)
           .single();
 
-        if (error) {
-          console.error('Erreur lors de la récupération des données:', error);
+        if (searchError && searchError.code !== 'PGRST116') {
+          console.error('Erreur lors de la recherche:', searchError);
+          return false;
         }
 
-        if (userData) {
+        if (!existingUser) {
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert([
+              {
+                email: user.email,
+                name: user.name,
+                image: user.image,
+                last_sign_in: new Date().toISOString()
+              }
+            ]);
+
+          if (insertError) {
+            console.error('Erreur lors de la création:', insertError);
+            return false;
+          }
+        }
+
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ last_sign_in: new Date().toISOString() })
+          .eq('email', user.email);
+
+        if (updateError) {
+          console.error('Erreur lors de la mise à jour:', updateError);
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Erreur générale:', error);
+        return false;
+      }
+    },
+    async session({ session, user }) {
+      try {
+        if (session?.user?.email) {
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', session.user.email)
+            .single();
+
+          if (error) {
+            console.error('Erreur lors de la récupération des données:', error);
+            return session;
+          }
+
           session.user.id = userData.id;
           session.user.role = userData.role;
-          session.user.last_login = userData.last_login;
-          console.log('Session mise à jour avec les données Supabase');
         }
+        return session;
+      } catch (error) {
+        console.error('Erreur lors de la session:', error);
+        return session;
       }
-      return session;
     },
   },
 });
