@@ -1,5 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+interface ChatMessage {
+  role: string;
+  content: string;
+}
+
 export class GeminiAdapter {
   private model;
 
@@ -8,7 +13,7 @@ export class GeminiAdapter {
     this.model = googleai.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
 
-  async process(messages: any[]) {
+  async process(messages: ChatMessage[]) {
     try {
       const chat = this.model.startChat();
       

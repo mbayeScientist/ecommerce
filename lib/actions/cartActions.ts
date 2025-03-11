@@ -21,19 +21,15 @@ export function useCartActions() {
     ],
     async handler({ query }) {
       try {
-        const { data: products, error } = await supabase
+        const { data: products } = await supabase
           .from('products')
           .select('*')
           .or(`name.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%`)
           .limit(5);
 
-        if (error) {
-          console.error('Erreur lors de la recherche:', error);
-          return [];
-        }
         return products || [];
-      } catch (error) {
-        console.error('Erreur lors de la recherche:', error);
+      } catch (err) {
+        console.error('Erreur lors de la recherche:', err);
         return [];
       }
     },
@@ -96,7 +92,8 @@ export function useCartActions() {
           success: true,
           message: `${quantity} ${product.name} ajouté(s) au panier`
         };
-      } catch (error) {
+      } catch (err) {
+        console.error("Erreur lors de l'ajout au panier:", err);
         return {
           success: false,
           message: "Erreur lors de l'ajout au panier"
